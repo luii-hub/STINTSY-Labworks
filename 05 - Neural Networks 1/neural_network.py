@@ -35,30 +35,31 @@ class NeuralNetwork(nn.Module):
         # layers list with correct values for parameters in_features and
         # out_features. This is the first layer of the network.
         # HINT: You will use self.list_hidden here.
-        layers.append(None)
+        layers.append(nn.Linear(self.input_size, self.list_hidden[0]))  # input to first hidden layer
+
 
         # TODO: Revise the code below. Append the activation layer by calling
         # the self.get_activation() function.
-        layers.append(None)
+        layers.append(self.get_activation(self.activation))  # Activation function for first layer
 
         # Iterate over other hidden layers just before the last layer
         for i in range(len(self.list_hidden) - 1):
 
             # TODO: Revise the code below. Append a torch.nn.Linear layer to
             # the layers list according to the values in self.list_hidden.
-            layers.append(None)
+            layers.append(nn.Linear(self.list_hidden[i], self.list_hidden[i + 1]))  # Between hidden layers
 
             # TODO: Revise the code below. Append the activation layer by
             # calling the self.get_activation() function.
-            layers.append(None)
+            layers.append(self.get_activation(self.activation))  # Activation for each hidden layer
 
         # TODO: Revise the code below. Append a torch.nn.Linear layer to the
         # layers list with correct values for parameters in_features and
         # out_features. This is the last layer of the network.
         # HINT: You will use self.list_hidden here.
-        layers.append(None)
+        layers.append(nn.Linear(self.list_hidden[-1], self.num_classes))  # Last hidden to output
+        layers.append(nn.Softmax(dim=1))  # Softmax for classification
         
-        layers.append(nn.Softmax(dim=1))
         self.layers = nn.Sequential(*layers)
 
     def init_weights(self):
@@ -79,12 +80,14 @@ class NeuralNetwork(nn.Module):
                 # from a normal distribution with mean 0 and standard deviation
                 # of 0.1.
                 # HINT: Use nn.init.normal_() function.
-                pass
+                nn.init.normal_(module.weight, mean=0, std=0.1)
 
                 # TODO: Initialize the bias terms of the torch.nn.Linear layer
                 # with a constant value of 0.
                 # HINT: Use nn.init.constant_() function.
-                pass
+                nn.init.constant_(module.bias, 0)
+
+                
 
     def get_activation(self,
                        mode='sigmoid'):
@@ -134,7 +137,7 @@ class NeuralNetwork(nn.Module):
                 # TODO: Compute the result of the linear layer. Do not forget
                 # to add the bias term. Assign the result to x.
                 # HINT: Use torch.matmul() function.
-                pass
+                x = torch.matmul(x, self.layers[i].weight.T) + self.layers[i].bias
 
             # If it is another function
             else:
@@ -209,4 +212,4 @@ class NeuralNetwork(nn.Module):
         """
 
         # TODO: Return the index of the class with the highest probability
-        pass
+        return torch.argmax(probabilities, dim=1)
